@@ -1,0 +1,22 @@
+# Runs the hunter as a background worker. No ports, nothing to expose.
+#
+#   docker compose up -d --build
+#   docker compose exec hunter python hunter.py --check
+#   docker compose logs -f
+#
+# Values come from .env (copy .env.example) or from your shell environment.
+services:
+  hunter:
+    build: .
+    image: oracle-arm-hunter:latest
+    container_name: oracle-arm-hunter
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - hunter-state:/data
+    # No `ports:` on purpose - this container only talks outward to OCI
+    # and Telegram. Exposing nothing is the safe default.
+
+volumes:
+  hunter-state:
