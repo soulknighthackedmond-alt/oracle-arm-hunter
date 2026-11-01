@@ -287,6 +287,10 @@ class Hunter:
         self.network = oci.core.VirtualNetworkClient(
             self.oci_config, retry_strategy=no_retry
         )
+        # Availability domains are an Identity API, not a Compute one.
+        self.identity = oci.identity.IdentityClient(
+            self.oci_config, retry_strategy=no_retry
+        )
 
         # filled in by resolve()
         self.subnet_id: str | None = None
@@ -343,7 +347,9 @@ class Hunter:
 
         self.ads = cfg.availability_domains or [
             ad.name
-            for ad in self.compute.list_availability_domains(cfg.compartment_id).data
+            for ad in self.identity.list_availability_domains(
+                cfg.compartment_id
+            ).data
         ]
         if not self.ads:
             raise SystemExit("no availability domains found for this region")
